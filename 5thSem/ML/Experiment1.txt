@@ -1,0 +1,80 @@
+# Experiment No. – 1
+
+## Data Loading, Cleaning, Preprocessing and Visualization
+
+### Program
+
+Perform data loading, cleaning, preprocessing, and visualization using Pandas, NumPy, Matplotlib, and Seaborn on a Student Performance dataset.
+
+### Aim
+
+To perform data loading, data cleaning, data preprocessing, and data visualization using Python libraries such as Pandas, NumPy, Matplotlib, and Seaborn.
+
+---
+
+## Dataset Used
+
+**Dataset Name:** Student Performance
+
+**Source:** UCI Machine Learning Repository
+
+**Dataset Link:**  
+https://archive.ics.uci.edu/ml/datasets/student+performance
+
+The dataset contains information about students, including demographic details, study habits, school-related information, absences, and academic performance.
+
+---
+
+## Background
+
+### Data Loading
+
+Reading data from a CSV file using Pandas.
+
+### Data Cleaning
+
+Handling missing values, duplicate records, and irrelevant data to make the dataset clean and suitable for analysis.
+
+### Data Preprocessing
+
+Converting categorical variables into numerical values, scaling numerical data, and checking for outliers.
+
+### Data Visualization
+
+Using histograms, boxplots, scatter plots, and heatmaps to understand data distribution, correlations, relationships, and trends.
+
+---
+
+## Methodology
+
+1. Load the dataset using `pandas.read_csv()`.
+
+2. Explore the dataset using:
+   - `.head()`
+   - `.info()`
+   - `.describe()`
+   - `.shape`
+
+3. Identify and handle missing values.
+
+4. Identify and remove duplicate records.
+
+5. Convert categorical variables into numerical values using `pd.get_dummies()`.
+
+6. Normalize or scale numerical values where required.
+
+7. Check for outliers using boxplots.
+
+8. Create visualizations using Matplotlib and Seaborn.
+
+9. Analyze the distribution, relationships, correlations, and trends in the dataset.
+
+---
+
+## Libraries Used
+
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
