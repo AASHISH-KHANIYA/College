@@ -1,0 +1,417 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College AI Assistant</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .container {
+            width: 900px;
+            max-width: 95%;
+            margin: 40px auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+        .upload-box {
+            border: 2px dashed #aaa;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        input[type="file"] {
+            margin: 15px 0;
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 15px;
+            cursor: pointer;
+            background: #2563eb;
+            color: white;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        #uploadStatus {
+            margin-top: 15px;
+            color: #444;
+        }
+
+        .chat-box {
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            overflow-y: auto;
+            background: #fafafa;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+
+        .user {
+            background: #2563eb;
+            color: white;
+            margin-left: auto;
+        }
+
+        .bot {
+            background: #e5e7eb;
+            color: #222;
+            margin-right: auto;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🎓 College AI Assistant</h1>
+
+    <p class="subtitle">
+        Ask questions about your college
+    </p>
+
+
+    <!-- UPLOAD SECTION -->
+
+    <div class="card">
+
+        <h2>📚 Upload College Data</h2>
+
+        <div class="upload-box">
+
+            <p>Select one or more Excel files</p>
+
+            <input
+                type="file"
+                id="fileInput"
+                accept=".xlsx,.xls"
+                multiple
+            >
+
+            <br>
+
+            <button onclick="uploadFiles()">
+                Upload Excel Files
+            </button>
+
+            <div id="uploadStatus"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CHAT SECTION -->
+
+    <div class="card">
+
+        <h2>💬 Chat</h2>
+
+        <div id="chatBox" class="chat-box">
+
+            <div class="message bot">
+                👋 Hi! Upload your college data and ask me anything.
+            </div>
+
+        </div>
+
+
+        <div class="chat-input">
+
+            <input
+                type="text"
+                id="questionInput"
+                placeholder="Ask something about your college..."
+                onkeydown="handleEnter(event)"
+            >
+
+            <button onclick="sendQuestion()">
+                Send
+            </button>
+
+        </div>
+
+        <div id="chatStatus" class="status"></div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    const API_URL = "http://127.0.0.1:8000";
+
+
+    // -------------------------
+    // UPLOAD FILES
+    // -------------------------
+
+    async function uploadFiles() {
+
+        const fileInput = document.getElementById("fileInput");
+        const status = document.getElementById("uploadStatus");
+
+        if (fileInput.files.length === 0) {
+
+            status.innerText = "Please select an Excel file.";
+
+            return;
+        }
+
+
+        const formData = new FormData();
+
+        for (const file of fileInput.files) {
+
+            formData.append("files", file);
+
+        }
+
+
+        status.innerText = "Uploading and processing...";
+
+
+        try {
+
+            const response = await fetch(
+                `${API_URL}/upload`,
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.detail || "Upload failed"
+                );
+
+            }
+
+
+            status.innerText =
+                `✅ Uploaded ${data.files.length} file(s) — ` +
+                `${data.total_documents} documents added to knowledge base.`;
+
+        }
+
+        catch (error) {
+
+            status.innerText =
+                `❌ Error: ${error.message}`;
+
+        }
+
+    }
+
+
+    // -------------------------
+    // SEND QUESTION
+    // -------------------------
+
+    async function sendQuestion() {
+
+        const input =
+            document.getElementById("questionInput");
+
+        const chatBox =
+            document.getElementById("chatBox");
+
+        const status =
+            document.getElementById("chatStatus");
+
+
+        const question =
+            input.value.trim();
+
+
+        if (!question) {
+
+            return;
+
+        }
+
+
+        // Show user message
+
+        addMessage(
+            question,
+            "user"
+        );
+
+
+        input.value = "";
+
+        status.innerText = "Thinking...";
+
+
+        try {
+
+            const response = await fetch(
+                `${API_URL}/chat?question=${encodeURIComponent(question)}`,
+                {
+                    method: "POST"
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.detail || "Chat request failed"
+                );
+
+            }
+
+
+            addMessage(
+                data.answer,
+                "bot"
+            );
+
+
+            status.innerText = "";
+
+        }
+
+        catch (error) {
+
+            addMessage(
+                `❌ Error: ${error.message}`,
+                "bot"
+            );
+
+            status.innerText = "";
+
+        }
+
+    }
+
+
+    // -------------------------
+    // ADD MESSAGE
+    // -------------------------
+
+    function addMessage(text, type) {
+
+        const chatBox =
+            document.getElementById("chatBox");
+
+
+        const message =
+            document.createElement("div");
+
+
+        message.className =
+            `message ${type}`;
+
+
+        message.innerText = text;
+
+
+        chatBox.appendChild(message);
+
+
+        chatBox.scrollTop =
+            chatBox.scrollHeight;
+
+    }
+
+
+    // -------------------------
+    // ENTER KEY
+    // -------------------------
+
+    function handleEnter(event) {
+
+        if (event.key === "Enter") {
+
+            sendQuestion();
+
+        }
+
+    }
+
+</script>
+
+</body>
+</html>
+```
